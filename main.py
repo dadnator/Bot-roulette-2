@@ -23,7 +23,9 @@ EMOJIS = {
     "rouge": "🔴",
     "noir": "⚫",
     "pair": "🔢",
-    "impair": "🔢"
+    "impair": "🔢",
+    "1-18": "⬇️", 
+    "19-36": "⬆️" 
 }
 
 COMMISSION = 0.05
@@ -111,8 +113,8 @@ async def lancer_la_roulette(interaction, duel_data, message_id_final):
 
     couleur = "rouge" if numero in ROUGES else "noir"
     parite = "pair" if numero % 2 == 0 else "impair"
-    opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair"}
-
+    moitie = "bas" if 1 <= numero <= 18 else "haut"
+    opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair", "1-18": "19-36", "19-36": "1-18"}
     valeur_joueur1 = valeur_choisie
     valeur_joueur2 = opposés[valeur_joueur1]
 
@@ -129,6 +131,7 @@ async def lancer_la_roulette(interaction, duel_data, message_id_final):
             f"🎯 **Numéro tiré** : `{numero}`\n"
             f"{'🔴 Rouge' if couleur == 'rouge' else '⚫ Noir'} — "
             f"{'🔢 Pair' if parite == 'pair' else '🔢 Impair'}"
+            f"{'⬇️ 1-18' if parite == '1-18' else '⬆️ 19-36'}"
         ),
         color=discord.Color.green() if gagnant == joueur1 else discord.Color.red()
     )
@@ -173,7 +176,7 @@ async def lancer_la_roulette(interaction, duel_data, message_id_final):
 
 # --- Vues Discord ---
 class RejoindreView(discord.ui.View):
-    opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair"}
+    opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair", "1-18": "19-36", "19-36": "1-18"}
 
     def __init__(self, message_id, joueur1, type_pari, valeur_choisie, montant):
         super().__init__(timeout=None)
@@ -332,7 +335,7 @@ class PariView(discord.ui.View):
         )
 
         # On prépare le message public
-        opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair"}
+        opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair", "1-18": "19-36", "19-36": "1-18"}
         choix_restant = opposés[valeur]
 
         public_embed = discord.Embed(
@@ -392,6 +395,14 @@ class PariView(discord.ui.View):
     async def impair(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.lock_in_choice(interaction, "pair", "impair")
 
+    @discord.ui.button(label="⬇️ 1-18 (Bas)", style=discord.ButtonStyle.success, custom_id="pari_1-18")
+    async def bas(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.lock_in_choice(interaction, "moitie", "1-18")
+
+    @discord.ui.button(label="⬆️ 19-36 (Haut)", style=discord.ButtonStyle.primary, custom_id="pari_19-36")
+    async def haut(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.lock_in_choice(interaction, "moitie", "19-36")
+        
 class StatsView(discord.ui.View):
     def __init__(self, ctx, entries, page=0):
         super().__init__(timeout=120)
@@ -627,7 +638,7 @@ async def quit_duel(interaction: discord.Interaction):
             valeur_choisie = duel_data["valeur"]
             type_pari = duel_data["type"]
             
-            opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair"}
+            opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair", "1-18": "19-36", "19-36": "1-18"}
             choix_restant = opposés[valeur_choisie]
 
             new_embed = discord.Embed(

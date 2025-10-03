@@ -113,7 +113,7 @@ async def lancer_la_roulette(interaction, duel_data, message_id_final):
 
     couleur = "rouge" if numero in ROUGES else "noir"
     parite = "pair" if numero % 2 == 0 else "impair"
-    moitie = "bas" if 1 <= numero <= 18 else "haut"
+    moitie = "1-18" if 1 <= numero <= 18 else "19-36"
     opposés = {"rouge": "noir", "noir": "rouge", "pair": "impair", "impair": "pair", "1-18": "19-36", "19-36": "1-18"}
     valeur_joueur1 = valeur_choisie
     valeur_joueur2 = opposés[valeur_joueur1]
@@ -131,7 +131,7 @@ async def lancer_la_roulette(interaction, duel_data, message_id_final):
             f"🎯 **Numéro tiré** : `{numero}`\n"
             f"{'🔴 Rouge' if couleur == 'rouge' else '⚫ Noir'} — "
             f"{'🔢 Pair' if parite == 'pair' else '🔢 Impair'}"
-            f"{'⬇️ 1-18' if parite == '1-18' else '⬆️ 19-36'}"
+            f"{'⬇️ 1-18' if moitie == '1-18' else '⬆️ 19-36'}"
         ),
         color=discord.Color.green() if gagnant == joueur1 else discord.Color.red()
     )
